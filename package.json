@@ -18,5 +18,12 @@
   "bugs": {
     "url": "https://github.com/orbb1/no-slides/issues"
   },
-  "homepage": "https://github.com/orbb1/no-slides#readme"
+  "homepage": "https://github.com/orbb1/no-slides#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.0.2",
+    "eslint": "^8.23.0",
+    "nodemon": "^2.0.19"
+  }
 }
