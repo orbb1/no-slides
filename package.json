@@ -1,0 +1,22 @@
+{
+  "name": "no-slides",
+  "version": "1.0.0",
+  "description": "all slides in one page",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orbb1/no-slides.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "orbbmax@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/orbb1/no-slides/issues"
+  },
+  "homepage": "https://github.com/orbb1/no-slides#readme"
+}
