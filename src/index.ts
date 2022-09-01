@@ -47,5 +47,15 @@ const getSrc = async () => {
   return arr;
 };
 
+app.get('/', (_, res) => {
+  return res.redirect('/home');
+});
+
+app.get('/home', (_, res) => {
+  getContent(urlBase + urlSuffix).then((images) => {
+    res.render('index.ejs', { images });
+  });
+});
+
 // getSrc();
 app.listen(3000);
