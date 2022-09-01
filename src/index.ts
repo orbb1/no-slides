@@ -12,27 +12,41 @@ const urlBase = process.env.URL_BASE || '';
 const urlSuffix = process.env.URL_SUFFIX || '';
 const nextButtonSelector = process.env.NEXT_SELECTOR || '';
 const imageSelector = process.env.IMAGE_SELECTOR || '';
+const contentSelector = process.env.CONTENT_SELECTOR || '';
 
-const getContent = (url: string): Promise<string[]> => {
-  let images: string[] = [];
+type ContentType = {
+  image: string;
+  html: string;
+};
+
+const getContent = (url: string): Promise<ContentType[]> => {
+  if (!url) {
+    return Promise.resolve([]);
+  }
+  let content: ContentType[] = [];
   return new Promise((resolve) => {
     axios({ method: 'get', url })
       .then((res) => {
         const $ = cheerio.load(res.data);
         const nextUrlSuffix = $(nextButtonSelector).attr('href');
         const imageSrc = $(imageSelector).attr('src');
+        const paragraph = $(contentSelector).text() || '';
+
         if (imageSrc) {
-          images.push(imageSrc);
+          content.push({
+            image: imageSrc,
+            html: paragraph,
+          });
         }
         if (nextUrlSuffix) {
           getContent(urlBase + nextUrlSuffix).then((res) => {
             if (res) {
-              images = images.concat(res);
+              content = content.concat(res);
             }
-            resolve(images);
+            resolve(content);
           });
         } else {
-          resolve(images);
+          resolve(content);
         }
       })
       .catch((err) => {
@@ -41,21 +55,14 @@ const getContent = (url: string): Promise<string[]> => {
   });
 };
 
-const getSrc = async () => {
-  let arr = await getContent(urlBase + urlSuffix).then((res) => res);
-  console.log(arr);
-  return arr;
-};
-
 app.get('/', (_, res) => {
   return res.redirect('/home');
 });
 
 app.get('/home', (_, res) => {
-  getContent(urlBase + urlSuffix).then((images) => {
-    res.render('index.ejs', { images });
+  getContent(urlBase + urlSuffix).then((content) => {
+    res.render('index.ejs', { content });
   });
 });
 
-// getSrc();
 app.listen(3000);

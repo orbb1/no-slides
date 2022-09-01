@@ -4,9 +4,10 @@
   <body>
     Hello
     <main>
-      <% for( let index = 0; index < images.length; index++ ) { %>
+      <% for( let index = 0; index < content.length; index++ ) { %>
       <div>
-        <img src="<%= images[index] %>" />
+        <img src="<%= content[index].image %>" />
+        <div><%= content[index].html %></div>
       </div>
       <% } %>
     </main>
