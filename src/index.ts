@@ -1,5 +1,6 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
+import { app } from './server';
 
 if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line global-require
@@ -47,3 +48,4 @@ const getSrc = async () => {
 };
 
 // getSrc();
+app.listen(3000);
