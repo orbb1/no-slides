@@ -4,7 +4,10 @@
   "description": "all slides in one page",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node --inspect=5858 -r ts-node/register ./src/server.ts",
+    "start-watch": "nodemon",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -23,7 +26,16 @@
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.0.2",
+    "nodemon": "^2.0.19",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.36.1",
     "eslint": "^8.23.0",
-    "nodemon": "^2.0.19"
+    "eslint-config-standard-with-typescript": "^22.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.5",
+    "eslint-plugin-promise": "^6.0.1",
+    "typescript": "^4.8.2"
   }
 }
