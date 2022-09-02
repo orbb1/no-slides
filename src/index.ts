@@ -20,8 +20,9 @@ const getContent = (url: string): Promise<ContentType[]> => {
   if (!url) {
     return Promise.resolve([]);
   }
-  // const urlBase =
+  const [urlBase] = url.match(/(^https:\/\/\w+.pl\/)/g) || [''];
   let content: ContentType[] = [];
+
   return new Promise((resolve) => {
     axios({ method: 'get', url })
       .then((res) => {
