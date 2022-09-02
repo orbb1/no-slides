@@ -1,15 +1,7 @@
-import axios from 'axios';
-import cheerio from 'cheerio';
-import { app } from './server';
-
-if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line global-require
-  require('dotenv').config();
-}
-
-const nextButtonSelector = process.env.NEXT_SELECTOR || '';
-const imageSelector = process.env.IMAGE_SELECTOR || '';
-const contentSelector = process.env.CONTENT_SELECTOR || '';
+import axios from "axios";
+import cheerio from "cheerio";
+import { app } from "./server";
+import { selectorsConfig } from "./config";
 
 type ContentType = {
   image: string;
@@ -17,19 +9,22 @@ type ContentType = {
 };
 
 const getContent = (url: string): Promise<ContentType[]> => {
-  if (!url) {
-    return Promise.resolve([]);
-  }
-  const [urlBase] = url.match(/(^https:\/\/\w+.pl\/)/g) || [''];
   let content: ContentType[] = [];
+  if (!url) {
+    return Promise.resolve(content);
+  }
+  const [urlBase] = url.match(/(^https:\/\/\w+.pl\/)/g) || [""];
+  const [siteName] = url.match(/[^https://](\w+)/) || [""];
+  const { nextButtonSelector, imageSelector, contentSelector } =
+    selectorsConfig[siteName];
 
   return new Promise((resolve) => {
-    axios({ method: 'get', url })
+    axios({ method: "get", url })
       .then((res) => {
         const $ = cheerio.load(res.data);
-        const nextUrlSuffix = $(nextButtonSelector).attr('href');
-        const imageSrc = $(imageSelector).attr('src');
-        const paragraph = $(contentSelector).text() || '';
+        const nextUrlSuffix = $(nextButtonSelector).attr("href");
+        const imageSrc = $(imageSelector).attr("src");
+        const paragraph = $(contentSelector).text() || "";
 
         if (imageSrc) {
           content.push({
@@ -54,21 +49,21 @@ const getContent = (url: string): Promise<ContentType[]> => {
   });
 };
 
-app.get('/', (_, res) => {
-  return res.redirect('/home');
+app.get("/", (_, res) => {
+  return res.redirect("/home");
 });
 
-app.get('/home', (_, res) => {
-  res.render('index.ejs');
+app.get("/home", (_, res) => {
+  res.render("index.ejs");
 });
 
-app.get('/results', (_, res) => {
-  res.render('results.ejs', { content: [] });
+app.get("/results", (_, res) => {
+  res.render("results.ejs", { content: [] });
 });
 
-app.post('/results', async (req, res) => {
+app.post("/results", async (req, res) => {
   getContent(req.body.url).then((content) => {
-    res.render('results.ejs', { content });
+    res.render("results.ejs", { content });
   });
 });
 
