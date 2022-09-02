@@ -4,11 +4,16 @@
   <body>
     <main>
       <div class="container-md">
-        <form action="/results" method="POST">
-          <label for="urlInput" class="form-label">Url</label>
-          <input type="text" name="url" class="form-control" id="urlInput" />
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        <% for( let index = 0; index < content.length; index++ ) { %>
+        <div class="row mt-4">
+          <div class="col-9">
+            <img src="<%= content[index].image %>" />
+          </div>
+          <div class="col-3">
+            <div><%= content[index].html %></div>
+          </div>
+        </div>
+        <% } %>
       </div>
     </main>
     <script

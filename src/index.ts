@@ -7,9 +7,6 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 
-const urlBase = process.env.URL_BASE || '';
-
-const urlSuffix = process.env.URL_SUFFIX || '';
 const nextButtonSelector = process.env.NEXT_SELECTOR || '';
 const imageSelector = process.env.IMAGE_SELECTOR || '';
 const contentSelector = process.env.CONTENT_SELECTOR || '';
@@ -23,6 +20,7 @@ const getContent = (url: string): Promise<ContentType[]> => {
   if (!url) {
     return Promise.resolve([]);
   }
+  // const urlBase =
   let content: ContentType[] = [];
   return new Promise((resolve) => {
     axios({ method: 'get', url })
@@ -60,8 +58,16 @@ app.get('/', (_, res) => {
 });
 
 app.get('/home', (_, res) => {
-  getContent(urlBase + urlSuffix).then((content) => {
-    res.render('index.ejs', { content });
+  res.render('index.ejs');
+});
+
+app.get('/results', (_, res) => {
+  res.render('results.ejs', { content: [] });
+});
+
+app.post('/results', async (req, res) => {
+  getContent(req.body.url).then((content) => {
+    res.render('results.ejs', { content });
   });
 });
 
