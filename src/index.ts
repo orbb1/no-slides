@@ -1,7 +1,7 @@
-import axios from "axios";
-import cheerio from "cheerio";
-import { app } from "./server";
-import { selectorsConfig } from "./config";
+import axios from 'axios';
+import cheerio from 'cheerio';
+import { app } from './server';
+import { selectorsConfig } from './config';
 
 type ContentType = {
   image: string;
@@ -13,18 +13,18 @@ const getContent = (url: string): Promise<ContentType[]> => {
   if (!url) {
     return Promise.resolve(content);
   }
-  const [urlBase] = url.match(/(^https:\/\/\w+.pl\/)/g) || [""];
-  const [siteName] = url.match(/[^https://](\w+)/) || [""];
+  const [urlBase] = url.match(/(^https:\/\/\w+.pl\/)/g) || [''];
+  const [siteName] = url.match(/[^https://](\w+)/) || [''];
   const { nextButtonSelector, imageSelector, contentSelector } =
     selectorsConfig[siteName];
 
   return new Promise((resolve) => {
-    axios({ method: "get", url })
+    axios({ method: 'get', url })
       .then((res) => {
         const $ = cheerio.load(res.data);
-        const nextUrlSuffix = $(nextButtonSelector).attr("href");
-        const imageSrc = $(imageSelector).attr("src");
-        const paragraph = $(contentSelector).text() || "";
+        const nextUrlSuffix = $(nextButtonSelector).attr('href');
+        const imageSrc = $(imageSelector).attr('src');
+        const paragraph = $(contentSelector).text() || '';
 
         if (imageSrc) {
           content.push({
@@ -49,21 +49,42 @@ const getContent = (url: string): Promise<ContentType[]> => {
   });
 };
 
-app.get("/", (_, res) => {
-  return res.redirect("/home");
+const findContent = (url: string) => {
+  return axios({ method: 'get', url }).then((res) => {
+    const [siteName] = url.match(/[^https://](\w+)/) || [''];
+    const { nextButtonSelector, mainImageSelector } = selectorsConfig[siteName];
+
+    const $ = cheerio.load(res.data);
+    const mainHref = $(mainImageSelector).attr('href');
+    const nextUrlSuffix = $(nextButtonSelector).attr('href');
+
+    if (mainHref) {
+      return mainHref;
+    } else if (nextUrlSuffix) {
+      return url;
+    }
+    return '';
+  });
+};
+
+app.get('/', (_, res) => {
+  return res.redirect('/home');
 });
 
-app.get("/home", (_, res) => {
-  res.render("index.ejs");
+app.get('/home', (_, res) => {
+  res.render('index.ejs');
 });
 
-app.get("/results", (_, res) => {
-  res.render("results.ejs", { content: [] });
+app.get('/results', (_, res) => {
+  res.render('results.ejs', { content: [] });
 });
 
-app.post("/results", async (req, res) => {
-  getContent(req.body.url).then((content) => {
-    res.render("results.ejs", { content });
+app.post('/results', async (req, res) => {
+  // TODO: refactor;
+  findContent(req.body.url).then((url = '') => {
+    getContent(url).then((content) => {
+      res.render('results.ejs', { content });
+    });
   });
 });
 
