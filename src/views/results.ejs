@@ -4,6 +4,13 @@
   <body>
     <main>
       <div class="container-md">
+        <div>
+          <% if (content.length === 0) { %>
+          <p>No content to show</p>
+          <% } else { %>
+          <p>Content:</p>
+          <% } %>
+        </div>
         <% for( let index = 0; index < content.length; index++ ) { %>
         <div class="row mt-4">
           <div class="col-9">

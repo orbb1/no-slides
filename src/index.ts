@@ -80,12 +80,16 @@ app.get('/results', (_, res) => {
 });
 
 app.post('/results', async (req, res) => {
-  // TODO: refactor;
-  findContent(req.body.url).then((url = '') => {
-    getContent(url).then((content) => {
-      res.render('results.ejs', { content });
+  // TODO: refactor, error page;
+  findContent(req.body.url)
+    .then((url = '') => {
+      getContent(url).then((content) => {
+        res.render('results.ejs', { content });
+      });
+    })
+    .catch(() => {
+      res.render('results.ejs', { content: [] });
     });
-  });
 });
 
 app.listen(3000);
