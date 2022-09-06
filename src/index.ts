@@ -75,8 +75,20 @@ app.get('/home', (_, res) => {
   res.render('index.ejs');
 });
 
-app.get('/results', (_, res) => {
-  res.render('results.ejs', { content: [] });
+app.get('/results', (req, res) => {
+  if (req.query.url) {
+    findContent(req.query.url as string)
+      .then((url = '') => {
+        getContent(url).then((content) => {
+          res.render('results.ejs', { content });
+        });
+      })
+      .catch(() => {
+        res.render('results.ejs', { content: [] });
+      });
+  } else {
+    res.render('results.ejs', { content: [] });
+  }
 });
 
 app.post('/results', async (req, res) => {
