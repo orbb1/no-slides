@@ -2,6 +2,8 @@ import axios from 'axios';
 import cheerio from 'cheerio';
 import { app } from './server';
 import { selectorsConfig } from './config';
+import { Response } from 'express';
+import { getConfig } from './utils';
 
 type ContentType = {
   image: string;
@@ -14,9 +16,7 @@ const getContent = (url: string): Promise<ContentType[]> => {
     return Promise.resolve(content);
   }
   const [urlBase] = url.match(/(^https:\/\/\w+.pl\/)/g) || [''];
-  const [siteName] = url.match(/[^https://](\w+)/) || [''];
-  const { nextButtonSelector, imageSelector, contentSelector } =
-    selectorsConfig[siteName];
+  const { nextButtonSelector, imageSelector, contentSelector } = getConfig(url);
 
   return new Promise((resolve) => {
     axios({ method: 'get', url })
@@ -51,8 +51,7 @@ const getContent = (url: string): Promise<ContentType[]> => {
 
 const findContent = (url: string) => {
   return axios({ method: 'get', url }).then((res) => {
-    const [siteName] = url.match(/[^https://](\w+)/) || [''];
-    const { nextButtonSelector, mainImageSelector } = selectorsConfig[siteName];
+    const { nextButtonSelector, mainImageSelector } = getConfig(url);
 
     const $ = cheerio.load(res.data);
     const mainHref = $(mainImageSelector).attr('href');
@@ -67,6 +66,17 @@ const findContent = (url: string) => {
   });
 };
 
+const handleResults = (url: string, response: Response): void => {
+  findContent(url)
+    .then(getContent)
+    .then((content) => {
+      response.render('results.ejs', { content });
+    })
+    .catch(() => {
+      response.redirect('/error');
+    });
+};
+
 app.get('/', (_, res) => {
   return res.redirect('/home');
 });
@@ -75,33 +85,16 @@ app.get('/home', (_, res) => {
   res.render('index.ejs');
 });
 
+app.get('/error', (_, res) => {
+  res.render('error.ejs');
+});
+
 app.get('/results', (req, res) => {
-  if (req.query.url) {
-    findContent(req.query.url as string)
-      .then((url = '') => {
-        getContent(url).then((content) => {
-          res.render('results.ejs', { content });
-        });
-      })
-      .catch(() => {
-        res.render('results.ejs', { content: [] });
-      });
-  } else {
-    res.render('results.ejs', { content: [] });
-  }
+  handleResults(req.query.url as string, res);
 });
 
 app.post('/results', async (req, res) => {
-  // TODO: refactor, error page;
-  findContent(req.body.url)
-    .then((url = '') => {
-      getContent(url).then((content) => {
-        res.render('results.ejs', { content });
-      });
-    })
-    .catch(() => {
-      res.render('results.ejs', { content: [] });
-    });
+  handleResults(req.body.url, res);
 });
 
 app.listen(3000);
